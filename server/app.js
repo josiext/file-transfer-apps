@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import { open, writeFile, mkdir } from "node:fs/promises";
 import Multipart from "@fastify/multipart";
 import path from "path";
+import mime from "mime-types";
 
 const FILE_TO_DOWNLOAD = "file.webp";
 const DIR_TO_UPLOAD = "uploads";
@@ -15,7 +16,15 @@ try {
   }
 }
 
-const fastify = Fastify();
+const fastify = Fastify({ bodyLimit: 10 * 1024 * 1024 });
+
+fastify.addContentTypeParser(
+  "application/octet-stream",
+  { parseAs: "buffer" },
+  function (_, payload, done) {
+    done(null, payload);
+  }
+);
 
 fastify.register(Multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -27,9 +36,11 @@ fastify.get("/download", async function handler(_, reply) {
   const fd = await open(FILE_TO_DOWNLOAD);
   const stream = fd.createReadStream();
 
+  const mimeType = mime.lookup(FILE_TO_DOWNLOAD);
+
   console.log(`Downloading -> ${FILE_TO_DOWNLOAD}`);
 
-  return reply.type("image/webp").send(stream);
+  return reply.type(mimeType).send(stream);
 });
 
 fastify.post("/upload", async function handler(request) {
@@ -59,37 +70,19 @@ fastify.post("/upload-multiples", async function handler(request) {
     uploadResults.push({ filename, uploaded: true });
     console.log(`Uploaded -> ${filePath}`);
   }
-  /* 
-  const files = await request.saveRequestFiles();
-  const uploadResults = [];
-
-  for (const file of files) {
-    const fileBuffer = await file.toBuffer();
-    const filename = file.filename;
-
-    // Log the file buffer length and type
-    console.log(`Processing file: ${filename}`);
-    console.log(`File buffer length: ${fileBuffer.length}`);
-    console.log(`File buffer type: ${typeof fileBuffer}`);
-
-    const filePath = path.join(DIR_TO_UPLOAD, filename);
-
-    await writeFile(filePath, fileBuffer);
-    uploadResults.push({ filename, uploaded: true });
-    console.log(`Uploaded -> ${filePath}`);
-  } */
 
   return { uploadedFiles: uploadResults };
 });
 
 fastify.post("/upload-octet-stream", async function handler(request) {
-  const data = await request.file();
-  const fileBuffer = await data.toBuffer();
-  const filename = data.filename;
+  const extension = request.headers["x-mime-extension"] ?? ".bin";
+  const name = request.headers["x-file-name"] ?? "file";
+  const filename = `${name}${extension}`;
 
-  await writeFile(filename, fileBuffer);
+  const data = request.body;
+  const filePath = path.join(DIR_TO_UPLOAD, filename);
 
-  return { uploaded: true };
+  await writeFile(filePath, data);
 });
 
 try {

@@ -4,7 +4,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as Sharing from "expo-sharing";
 
-const BASE_URL = "https://slope-seeing-daily-competent.trycloudflare.com";
+const BASE_URL = "http://10.0.2.2:3100";
 
 const DOWNLOAD_API = `${BASE_URL}/download`;
 const UPLOAD_MULTIPLE_API = `${BASE_URL}/upload-multiples`;

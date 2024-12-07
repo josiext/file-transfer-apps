@@ -3,9 +3,12 @@ import { open, writeFile, mkdir } from "node:fs/promises";
 import Multipart from "@fastify/multipart";
 import path from "path";
 import mime from "mime-types";
+import cors from "@fastify/cors";
 
-const FILE_TO_DOWNLOAD = "file.webp";
-const DIR_TO_UPLOAD = "uploads";
+const APP_PORT = 3100;
+
+const FILE_TO_DOWNLOAD = "./example.webp";
+const DIR_TO_UPLOAD = "./uploads";
 
 try {
   await mkdir(DIR_TO_UPLOAD);
@@ -17,6 +20,11 @@ try {
 }
 
 const fastify = Fastify({ bodyLimit: 10 * 1024 * 1024 });
+
+await fastify.register(cors, {
+  origin: "*",
+  exposedHeaders: "*",
+});
 
 fastify.addContentTypeParser(
   "application/octet-stream",
@@ -40,7 +48,13 @@ fastify.get("/download", async function handler(_, reply) {
 
   console.log(`Downloading -> ${FILE_TO_DOWNLOAD}`);
 
-  return reply.type(mimeType).send(stream);
+  return reply
+    .type(mimeType)
+    .header(
+      "Content-Disposition",
+      `attachment; filename=${path.basename(FILE_TO_DOWNLOAD)}`
+    )
+    .send(stream);
 });
 
 fastify.post("/upload", async function handler(request) {
@@ -75,18 +89,18 @@ fastify.post("/upload-multiples", async function handler(request) {
 });
 
 fastify.post("/upload-octet-stream", async function handler(request) {
-  const extension = request.headers["x-mime-extension"] ?? ".bin";
-  const name = request.headers["x-file-name"] ?? "file";
-  const filename = `${name}${extension}`;
+  const filename = request.headers["x-file-name"] ?? "unknown.text";
 
   const data = request.body;
   const filePath = path.join(DIR_TO_UPLOAD, filename);
 
   await writeFile(filePath, data);
+
+  return { uploaded: true };
 });
 
 try {
-  await fastify.listen({ port: 3000 });
+  await fastify.listen({ port: APP_PORT });
   console.log(`Server listening on ${fastify.server.address().port}`);
 } catch (err) {
   fastify.log.error(err);

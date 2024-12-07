@@ -1,6 +1,6 @@
 import "./App.css";
 
-const BASE_URL = "http://localhost:3100";
+const BASE_URL = "http://10.0.2.2:3100";
 
 const DOWNLOAD_API = `${BASE_URL}/download`;
 const UPLOAD_MULTIPLE_API = `${BASE_URL}/upload-multiples`;

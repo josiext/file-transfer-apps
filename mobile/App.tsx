@@ -1,5 +1,6 @@
 import { Button, StyleSheet, Text, View } from "react-native";
 import * as FileSystem from "expo-file-system";
+import * as DocumentPicker from "expo-document-picker";
 
 const BASE_URL = "https://slope-seeing-daily-competent.trycloudflare.com";
 
@@ -52,7 +53,35 @@ export default function App() {
     fr.readAsDataURL(blob);
   };
 
-  const uploadFile = async () => {};
+  const uploadFile = async () => {
+    const files = await DocumentPicker.getDocumentAsync({ multiple: true });
+
+    if (files.canceled) return;
+
+    const formData = new FormData();
+
+    files.assets.forEach((file) => {
+      formData.append("files", {
+        uri: file.uri,
+        name: file.name,
+        type: file.mimeType,
+      });
+    });
+
+    const response = await fetch(UPLOAD_MULTIPLE_API, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to upload file");
+    }
+
+    alert("File uploaded successfully");
+  };
 
   const uploadOctetStream = async () => {};
 

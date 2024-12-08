@@ -3,6 +3,7 @@ import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as Sharing from "expo-sharing";
+import { StatusBar } from "expo-status-bar";
 
 const BASE_URL = "http://10.0.2.2:3100";
 
@@ -153,7 +154,7 @@ export default function App() {
     <View
       style={{
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#f8f8f8",
         alignItems: "center",
         justifyContent: "center",
         gap: 40,
@@ -178,6 +179,8 @@ export default function App() {
           onPress={uploadOctetStream}
         />
       </View>
+
+      <StatusBar style="auto" />
     </View>
   );
 }

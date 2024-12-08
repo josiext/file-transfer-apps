@@ -144,9 +144,7 @@ export default function App() {
       headers,
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to upload file");
-    }
+    if (!response.ok) throw new Error("Failed to upload file");
 
     alert("File uploaded successfully");
   };

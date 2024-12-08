@@ -1,6 +1,6 @@
 import "./App.css";
 
-const BASE_URL = "http://10.0.2.2:3100";
+const BASE_URL = "http://localhost:3100";
 
 const DOWNLOAD_API = `${BASE_URL}/download`;
 const UPLOAD_MULTIPLE_API = `${BASE_URL}/upload-multiples`;
@@ -9,6 +9,8 @@ const UPLOAD_OCTET_API = `${BASE_URL}/upload-octet-stream`;
 function App() {
   const downloadFile = async () => {
     const response = await fetch(DOWNLOAD_API);
+
+    if (!response.ok) throw new Error("Failed to download file");
 
     const blob = await response.blob();
 
@@ -25,7 +27,6 @@ function App() {
       const a = document.createElement("a");
       a.href = url;
       a.download = filename || "file.txt";
-      document.body.appendChild(a);
       a.click();
     }
 
@@ -54,6 +55,8 @@ function App() {
         body: formData,
       });
 
+      if (!res.ok) throw new Error("Failed to upload file");
+
       const data = await res.json();
 
       alert(JSON.stringify(data));
@@ -81,6 +84,8 @@ function App() {
         headers,
         body: file,
       });
+
+      if (!res.ok) throw new Error("Failed to upload file");
 
       const data = await res.json();
 

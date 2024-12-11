@@ -2,8 +2,6 @@
 
 Example project demonstrating file upload and download functionality in a React web app and a React Native (Expo) mobile app, powered by a Fastify backend.
 
-See the [Blog](https://dev.to/josiex/react-expo-how-to-upload-download-files-528f).
-
 ## Description
 
 This project features a backend with three key endpoints for file handling:
@@ -15,3 +13,5 @@ This project features a backend with three key endpoints for file handling:
 Uploaded files are stored in the `/uploads` directory.
 
 The endpoints are integrated with a React web app and a React Native mobile app, demonstrating file upload and download functionality across both platforms.
+
+See the [Blog](https://dev.to/josiex/react-expo-how-to-upload-download-files-528f).
